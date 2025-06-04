@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>LEDO Sports Academy - Membership System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- PDF Generation Libraries -->
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/jspdf-autotable@latest/dist/jspdf.plugin.autotable.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="https://iili.io/F9tc8il.png" alt="LEDO Sports Academy Logo">
+            <h1>LEDO <span>SPORTS</span></h1>
+            <p>Membership System</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="purpose-section card">
+            <h2>Purpose of Membership Fund</h2>
+            <p>The membership funds collected will be utilized for the development and growth of our sports club.</p>
+        </div>
+
+        <div class="admin-login-container">
+            <h2 class="section-title">Admin Access</h2>
+            <button class="btn btn-primary" id="adminToggle">Click to Login</button>
+            <div id="authContainer" style="display:none;">
+                <div class="form-group">
+                    <label for="authEmail">Email Address</label>
+                    <input type="email" id="authEmail" placeholder="Enter admin email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="authPassword">Password</label>
+                    <input type="password" id="authPassword" placeholder="Enter password" class="form-control" required>
+                </div>
+                <button id="authButton" class="btn btn-primary">Login</button>
+            </div>
+        </div>
+
+        <div class="summary-cards">
+            <div class="summary-card">
+                <h3>Total Members</h3>
+                <p id="totalMembers">0</p>
+            </div>
+            <div class="summary-card">
+                <h3>Paid This Week</h3>
+                <p id="paidThisWeek">0</p>
+            </div>
+            <div class="summary-card">
+                <h3>Unpaid This Week</h3>
+                <p id="unpaidThisWeek">0</p>
+            </div>
+            <div class="summary-card">
+                <h3>Total Collected</h3>
+                <p id="totalCollected">₹0</p>
+            </div>
+        </div>
+        
+        <div class="weeks-container" id="weeksContainer" role="tablist"></div>
+        
+        <nav class="tabs" role="navigation">
+            <button class="tab-btn active" data-tab="members" role="tab">Members</button>
+            <button class="tab-btn" data-tab="expenses" role="tab">Expenses</button>
+            <button class="tab-btn" data-tab="donations" role="tab">Donations</button>
+            <button class="tab-btn" data-tab="analysis" role="tab">Analysis</button>
+        </nav>
+        
+        <div class="tab-content active" id="members-tab">
+            <div class="admin-panel card" id="adminPanel" style="display:none;">
+                <h2 class="section-title">Admin Controls</h2>
+                <div class="form-group">
+                    <label for="paymentAmount">Weekly Payment Amount (₹)</label>
+                    <input type="number" id="paymentAmount" class="form-control" value="20">
+                </div>
+                
+                <h3 style="margin-top: 1rem;">Add New Member</h3>
+                <form id="addMemberForm">
+                    <div class="form-group">
+                        <label for="memberName">Full Name</label>
+                        <input type="text" id="memberName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="memberPhone">Phone Number</label>
+                        <input type="tel" id="memberPhone" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="memberPhoto">Photo URL</label>
+                        <div class="photo-upload-container">
+                            <input type="url" id="memberPhoto" class="form-control" placeholder="Enter photo URL">
+                            <div class="photo-preview">
+                                <img id="photoPreview" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHBhdGggZmlsbD0iI2U2ZTZlNiIgZD0iTTAgMGg1MTJ2NTEySDB6Ii8+PHBhdGggZmlsbD0iIzk5OSIgZD0iTTI1NiAzMDRjNjEuNiAwIDExMi04OS40IDExMi0yMDAgMC04OC40LTUwLjQtODAtMTEyLTgwcy0xMTItOC40LTExMiA4MGMwIDExMC42IDUwLjQgMjAwIDExMiAyMDB6bS0xNiA0MGMtNjYuOCAwLTEyOCA0OC44LTEyOCAxMDguNFY1MTJoMjg4di01OS42YzAtNTkuNi02MS4yLTEwOC40LTEyOC0xMDguNHoiLz48L3N2Zz4=" alt="Member photo preview">
+                            </div>
+                        </div>
+                        <small class="form-text">Enter a valid image URL (e.g., https://example.com/photo.jpg)</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Member</button>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h2 class="section-title">Members List</h2>
+                <div class="table-responsive">
+                    <table id="membersTable">
+                        <thead>
+                            <tr>
+                                <th>Photo</th>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="expenses-tab">
+            <div class="card">
+                <h2 class="section-title">Add New Expense</h2>
+                <form id="addExpenseForm">
+                    <div class="form-group">
+                        <label for="expenseDescription">Description</label>
+                        <input type="text" id="expenseDescription" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseAmount">Amount (₹)</label>
+                        <input type="number" id="expenseAmount" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Expense</button>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h2 class="section-title">Expenses History</h2>
+                <div class="table-responsive">
+                    <table id="expensesTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="donations-tab">
+            <div class="card">
+                <h2 class="section-title">Record Donation</h2>
+                <form id="addDonationForm">
+                    <div class="form-group">
+                        <label for="donorName">Donor Name</label>
+                        <input type="text" id="donorName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="donationAmount">Amount (₹)</label>
+                        <input type="number" id="donationAmount" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Record Donation</button>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h2 class="section-title">Donations History</h2>
+                <div class="table-responsive">
+                    <table id="donationsTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Donor</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="analysis-tab">
+            <div class="card">
+                <h2 class="section-title">Weekly Analysis</h2>
+                <div class="analysis-filters">
+                    <div class="filter-group">
+                        <label for="analysisYear">Select Year:</label>
+                        <select id="analysisYear" class="form-control">
+                            <option value="2025">2025</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="analysisMonth">Select Month:</label>
+                        <select id="analysisMonth" class="form-control">
+                            <option value="all">All Months</option>
+                            <option value="5">June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>&nbsp;</label>
+                        <button id="downloadAnalysisBtn" class="btn btn-primary">
+                            Download PDF Report
+                        </button>
+                    </div>
+                </div>
+                <div class="analysis-summary">
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <h3>Total Collections</h3>
+                            <p id="analysisTotalCollections">₹0</p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Total Expenses</h3>
+                            <p id="analysisTotalExpenses">₹0</p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Net Amount</h3>
+                            <p id="analysisNetAmount">₹0</p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Average Weekly Collection</h3>
+                            <p id="analysisAvgCollection">₹0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="weekly-analysis-table">
+                    <table id="analysisTable">
+                        <thead>
+                            <tr>
+                                <th>Week</th>
+                                <th>Collections</th>
+                                <th>Members Paid</th>
+                                <th>Expenses</th>
+                                <th>Net Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 LEDO Sports Academy</p>
+    </footer>
+
+    <div class="modal" id="paymentModal" role="dialog" aria-labelledby="paymentModalTitle">
+        <div class="modal-content">
+            <button class="close-modal" aria-label="Close modal">&times;</button>
+            <h2 id="paymentModalTitle" class="section-title">Record Payment</h2>
+            <form id="paymentForm">
+                <input type="hidden" id="paymentMemberId">
+                <div class="form-group">
+                    <label for="paymentAmountModal">Amount (₹)</label>
+                    <input type="number" id="paymentAmountModal" class="form-control" required inputmode="numeric" pattern="[0-9]*">
+                </div>
+                <div class="form-group">
+                    <label for="paymentWeek">Week Number</label>
+                    <input type="number" id="paymentWeek" class="form-control" required inputmode="numeric" pattern="[0-9]*">
+                </div>
+                <div class="form-group">
+                    <label for="paymentYear">Year</label>
+                    <input type="number" id="paymentYear" class="form-control" required inputmode="numeric" pattern="[0-9]*">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Record Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="imageModal" role="dialog" aria-labelledby="imageModalTitle">
+        <div class="modal-content image-modal-content">
+            <button class="close-modal" aria-label="Close modal">&times;</button>
+            <img id="modalImage" src="" alt="Member Photo">
+            <h3 id="modalMemberName" class="member-name"></h3>
+        </div>
+    </div>
+
+    <div class="modal" id="editMemberModal" role="dialog" aria-labelledby="editMemberModalTitle">
+        <div class="modal-content">
+            <button class="close-modal" aria-label="Close modal">&times;</button>
+            <h2 id="editMemberModalTitle" class="section-title">Edit Member Details</h2>
+            <form id="editMemberForm">
+                <input type="hidden" id="editMemberId">
+                <div class="form-group">
+                    <label for="editMemberName">Full Name</label>
+                    <input type="text" id="editMemberName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editMemberPhone">Phone Number</label>
+                    <input type="tel" id="editMemberPhone" class="form-control" required inputmode="tel">
+                </div>
+                <div class="form-group">
+                    <label for="editMemberPhoto">Photo URL</label>
+                    <div class="photo-upload-container">
+                        <input type="url" id="editMemberPhoto" class="form-control" placeholder="Enter photo URL">
+                        <div class="photo-preview">
+                            <img id="editPhotoPreview" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHBhdGggZmlsbD0iI2U2ZTZlNiIgZD0iTTAgMGg1MTJ2NTEySDB6Ii8+PHBhdGggZmlsbD0iIzk5OSIgZD0iTTI1NiAzMDRjNjEuNiAwIDExMi04OS40IDExMi0yMDAgMC04OC40LTUwLjQtODAtMTEyLTgwcy0xMTItOC40LTExMiA4MGMwIDExMC42IDUwLjQgMjAwIDExMiAyMDB6bS0xNiA0MGMtNjYuOCAwLTEyOCA0OC44LTEyOCAxMDguNFY1MTJoMjg4di01OS42YzAtNTkuNi02MS4yLTEwOC40LTEyOC0xMDguNHoiLz48L3N2Zz4=" alt="Member photo preview">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" id="cancelEdit">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html> 
